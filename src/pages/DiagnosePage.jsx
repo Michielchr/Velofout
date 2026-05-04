@@ -620,26 +620,21 @@ export default function DiagnosePage({ navigate }) {
 
   useEffect(() => {
     setAnimateIn(true);
-    // Laad kennisbank uit Sanity (valt terug op lokale data als Sanity niet beschikbaar is)
     getAllDiagnoses()
       .then(data => {
         if (data && data.length > 0) {
-          // Converteer Sanity data naar hetzelfde formaat als lokale kennisbank
           const map = {};
           data.forEach(d => {
             map[`${d.onderdeel}|${d.symptoom}`] = {
-              ernst: d.ernst,
-              ernstLabel: d.ernstLabel,
-              oorzaak: d.oorzaak,
-              oplossing: d.oplossing || [],
-              benodigdheden: d.benodigdheden || "",
-              winkel: d.winkel || "",
+              ernst: d.ernst, ernstLabel: d.ernstLabel,
+              oorzaak: d.oorzaak, oplossing: d.oplossing || [],
+              benodigdheden: d.benodigdheden || "", winkel: d.winkel || "",
             };
           });
           setSanityDiagnoses(map);
         }
       })
-      .catch(() => {}); // stil falen — gebruik lokale kennisbank
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -664,20 +659,21 @@ Beschrijving: ${description || "Geen extra beschrijving"}
       let text = null;
 
       if (aiMode) {
-        // AI modus: roep eigen veilige backend aan (/api/diagnose)
+        // AI modus: probeer Claude API
         try {
-          const response = await fetch("/api/diagnose", {
+          const response = await fetch("https://api.anthropic.com/v1/messages", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              part: selectedPart,
-              symptom: selectedSymptom,
-              description: description,
+              model: "claude-sonnet-4-20250514",
+              max_tokens: 1000,
+              system: systemPrompt,
+              messages: [{ role: "user", content: userMessage }],
             }),
           });
           if (response.ok) {
             const data = await response.json();
-            text = data.result || null;
+            text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n");
           }
         } catch (_) {}
 
@@ -687,33 +683,20 @@ Beschrijving: ${description || "Geen extra beschrijving"}
           text += "\n\n*AI niet beschikbaar — resultaat uit kennisbank.*";
         }
       } else {
-        // Standaard: kennisbank (Sanity indien beschikbaar, anders lokaal)
         await new Promise(r => setTimeout(r, 800));
         const key = `${selectedPart}|${selectedSymptom}`;
         if (sanityDiagnoses && sanityDiagnoses[key]) {
           const d = sanityDiagnoses[key];
           const stappen = d.oplossing.map((s, i) => `${i + 1}. ${s}`).join("\n");
-          text = `**Ernst** ${d.ernst} ${d.ernstLabel}
-
-**Waarschijnlijke oorzaak**
-${d.oorzaak}
-
-**Zelf oplossen**
-${stappen}
-
-**Benodigdheden**
-${d.benodigdheden}
-
-**Naar de fietswinkel?**
-${d.winkel}`;
+          text = `**Ernst** ${d.ernst} ${d.ernstLabel}\n\n**Waarschijnlijke oorzaak**\n${d.oorzaak}\n\n**Zelf oplossen**\n${stappen}\n\n**Benodigdheden**\n${d.benodigdheden}\n\n**Naar de fietswinkel?**\n${d.winkel}`;
         } else {
           text = getDiagnosis(selectedPart, selectedSymptom, description);
         }
       }
 
       setResult({ text, isAI: aiMode });
-      // Analytics event
-      if (window.plausible) window.plausible('Diagnose', { props: { onderdeel: selectedPart || 'onbekend', symptoom: selectedSymptom || 'onbekend', ai: aiMode } });
+      if (window.plausible) window.plausible('Diagnose', { props: { onderdeel: selectedPart || 'onbekend', ai: aiMode } });
+      fetch('/api/analytics', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ event:'diagnose', part: selectedPart, symptom: selectedSymptom, isAI: aiMode }) }).catch(()=>{});
     } catch (err) {
       setError(`Fout: ${err.message}`);
     } finally {
@@ -796,7 +779,7 @@ ${d.winkel}`;
       <header style={styles.header} className="fade-up">
         <div style={styles.headerAccent} />
         <div style={styles.headerInner}>
-          <div style={styles.logoArea} onClick={() => navigate && navigate("/")} style={{...styles.logoArea, cursor:"pointer"}}>
+          <div style={styles.logoArea}>
             <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
               <circle cx="9" cy="27" r="7" stroke="#2a7de1" strokeWidth="2.5" fill="none"/>
               <circle cx="27" cy="27" r="7" stroke="#2a7de1" strokeWidth="2.5" fill="none"/>
@@ -810,7 +793,7 @@ ${d.winkel}`;
               <div style={styles.logoSub}>Fiets Diagnostics</div>
             </div>
           </div>
-          <div style={{display:"flex", alignItems:"center", gap:12}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
             <button onClick={() => navigate && navigate("/blog")} style={{background:"transparent",border:"none",color:"#5a7a9a",fontFamily:"'IBM Plex Mono',monospace",fontSize:11,letterSpacing:1,cursor:"pointer",textTransform:"uppercase"}}>Blog</button>
             <div style={styles.badge}>AI-MONTEUR</div>
           </div>
@@ -1111,11 +1094,7 @@ ${d.winkel}`;
               <div style={styles.resultsTitleAccent} />
               <h1 style={styles.resultsMainTitle}>DIAGNOSE</h1>
               <p style={styles.resultsSubtitle}>
-                {result?.isAI
-                  ? "⚡ AI-diagnose — gegenereerd door Claude"
-                  : sanityDiagnoses && sanityDiagnoses[`${selectedPart}|${selectedSymptom}`]
-                    ? "📚 Kennisbank — uit Sanity CMS"
-                    : "📚 Kennisbank — gratis diagnose"}
+                {result?.isAI ? "⚡ AI-diagnose — gegenereerd door Claude" : "📚 Kennisbank — gratis diagnose"}
               </p>
             </div>
 
@@ -1145,8 +1124,6 @@ ${d.winkel}`;
 
       <footer style={styles.footer}>
         <span>VELOFOUT © 2026</span>
-        <span style={{ color: "#3ab07a" }}>■</span>
-        <button onClick={() => navigate && navigate("/blog")} style={{background:"none",border:"none",color:"#3ab07a",cursor:"pointer",fontFamily:"'IBM Plex Mono',monospace",fontSize:10,letterSpacing:1}}>Blog</button>
         <span style={{ color: "#3ab07a" }}>■</span>
         <span>Altijd een echte monteur raadplegen bij twijfel</span>
       </footer>
