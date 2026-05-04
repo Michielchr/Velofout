@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import DiagnosePage from "./pages/DiagnosePage.jsx";
 import BlogListPage from "./pages/BlogListPage.jsx";
 import BlogPostPage from "./pages/BlogPostPage.jsx";
@@ -25,7 +26,19 @@ export default function App() {
   // Blog post route: /blog/slug
   const blogMatch = path.match(/^\/blog\/(.+)$/);
 
-  if (blogMatch) return <BlogPostPage slug={blogMatch[1]} navigate={navigate} />;
-  if (path === "/blog") return <BlogListPage navigate={navigate} />;
-  return <DiagnosePage navigate={navigate} />;
+  let content;
+  if (blogMatch) {
+    content = <BlogPostPage slug={blogMatch[1]} navigate={navigate} />;
+  } else if (path === "/blog") {
+    content = <BlogListPage navigate={navigate} />;
+  } else {
+    content = <DiagnosePage navigate={navigate} />;
+  }
+
+  return (
+    <>
+      {content}
+      <Analytics />
+    </>
+  );
 }
