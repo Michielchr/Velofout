@@ -1,7 +1,4 @@
-// sanity-schema/index.js
-// Importeer alle schemas hier en voeg ze toe aan de schemaTypes array
-
+// sanity-schema/index.js — importeer dit in je Sanity Studio
 import post from './post.js';
 import diagnose from './diagnose.js';
-
 export const schemaTypes = [post, diagnose];
