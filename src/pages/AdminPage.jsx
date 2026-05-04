@@ -85,13 +85,7 @@ export default function AdminPage({ navigate }) {
       <div style={s.loginWrap}>
         <div style={s.loginBox}>
           <div style={s.loginLogo}>
-            <svg width="32" height="32" viewBox="0 0 36 36" fill="none">
-              <circle cx="9" cy="27" r="7" stroke="#2a7de1" strokeWidth="2.5" fill="none"/>
-              <circle cx="27" cy="27" r="7" stroke="#2a7de1" strokeWidth="2.5" fill="none"/>
-              <circle cx="9" cy="27" r="2" fill="#3ab07a"/><circle cx="27" cy="27" r="2" fill="#3ab07a"/>
-              <path d="M9 27 L18 10 L27 27" stroke="#fff" strokeWidth="2" fill="none" strokeLinejoin="round"/>
-              <path d="M14 20 L27 20" stroke="#fff" strokeWidth="2"/>
-            </svg>
+            <img src="/logo.png" height="36" alt="Velofout logo" />
             <div style={s.loginTitle}>VELOFOUT</div>
           </div>
           <div style={s.loginSub}>BEHEERPANEEL</div>
