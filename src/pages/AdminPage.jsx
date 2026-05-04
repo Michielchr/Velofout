@@ -85,7 +85,7 @@ export default function AdminPage({ navigate }) {
       <div style={s.loginWrap}>
         <div style={s.loginBox}>
           <div style={s.loginLogo}>
-            <img src="/logo.svg" height="36" alt="Velofout logo" />
+            <img src="/logo.svg" height="50" alt="Velofout logo" />
             <div style={s.loginTitle}>VELOFOUT</div>
           </div>
           <div style={s.loginSub}>BEHEERPANEEL</div>
