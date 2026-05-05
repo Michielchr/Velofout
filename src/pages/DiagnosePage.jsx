@@ -284,11 +284,34 @@ const EBIKE_ERROR_CODES = {
 };
 
 function getEbikeError(brand, code) {
+  // Probeer eerst de codes uit het beheerpaneel (localStorage)
+  try {
+    const adminCodes = localStorage.getItem("velofout_ebike_codes");
+    if (adminCodes) {
+      const codes = JSON.parse(adminCodes);
+      const match = codes.find(c =>
+        c.merk.toLowerCase() === brand.toLowerCase() &&
+        c.code.trim().toLowerCase() === code.trim().toLowerCase()
+      );
+      if (match) {
+        return {
+          brand: match.merk,
+          title: match.titel,
+          ernst: match.ernst,
+          beschrijving: match.beschrijving,
+          oplossing: (match.oplossing || "").split("\n").filter(Boolean),
+          winkel: match.winkel,
+          affiliate: [],
+        };
+      }
+    }
+  } catch (_) {}
+
+  // Fallback naar hardcoded database
   const brandData = EBIKE_ERROR_CODES[brand];
   if (!brandData) return null;
   const normalizedCode = code.trim().toUpperCase().replace(/^0+/, "") || code.trim();
-  // Try exact match first, then without leading zeros
-  const error = brandData.codes[code.trim()] || 
+  const error = brandData.codes[code.trim()] ||
     brandData.codes[normalizedCode] ||
     brandData.codes[code.trim().toUpperCase()];
   return error ? { ...error, brand: brandData.name } : null;
@@ -556,6 +579,35 @@ const DEFAULT_DIAGNOSIS = {
 
 function getDiagnosis(part, symptom, desc) {
   const key = `${part}|${symptom}`;
+
+  // Probeer eerst de kennisbank uit het beheerpaneel (localStorage)
+  try {
+    const adminDiagnoses = localStorage.getItem("velofout_diagnoses");
+    if (adminDiagnoses) {
+      const diagnoses = JSON.parse(adminDiagnoses);
+      const match = diagnoses.find(d =>
+        d.onderdeel === part && d.symptoom === symptom
+      );
+      if (match) {
+        const stappen = (match.oplossing || "").split("\n").filter(Boolean).map((s, i) => `${i+1}. ${s}`).join("\n");
+        return `**Ernst** ${match.ernst} ${match.ernstLabel}
+
+**Waarschijnlijke oorzaak**
+${match.oorzaak}
+
+**Zelf oplossen**
+${stappen}
+
+**Benodigdheden**
+${match.benodigdheden}
+
+**Naar de fietswinkel?**
+${match.winkel}`;
+      }
+    }
+  } catch (_) {}
+
+  // Fallback naar hardcoded kennisbank
   const d = DIAGNOSES[key] || DEFAULT_DIAGNOSIS;
 
   const descNote = desc && desc.trim()
