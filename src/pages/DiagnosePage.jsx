@@ -668,11 +668,7 @@ export default function DiagnosePage({ navigate }) {
   const [error, setError] = useState(null);
   const [animateIn, setAnimateIn] = useState(false);
   const [sanityDiagnoses, setSanityDiagnoses] = useState(null);
-  const [activeTab, setActiveTab] = useState("diagnose");
   const [aiMode, setAiMode] = useState(false);
-  const [ebikeBrand, setEbikeBrand] = useState("");
-  const [ebikeCode, setEbikeCode] = useState("");
-  const [ebikeResult, setEbikeResult] = useState(null);
   const resultRef = useRef(null);
 
   useEffect(() => {
@@ -770,11 +766,6 @@ Beschrijving: ${description || "Geen extra beschrijving"}
     setAiMode(false);
   };
 
-  const handleEbikeLookup = () => {
-    if (!ebikeBrand || !ebikeCode.trim()) return;
-    const result = getEbikeError(ebikeBrand, ebikeCode);
-    setEbikeResult(result || "not_found");
-  };
 
   const formatResult = (text) => {
     if (!text) return null;
@@ -834,151 +825,8 @@ Beschrijving: ${description || "Geen extra beschrijving"}
 
       <Header navigate={navigate} activePath="/" />
 
-      {/* Tab navigation */}
-      <div style={styles.tabBar}>
-        <div style={styles.tabBarInner}>
-          <button
-            className={activeTab === "diagnose" ? "tab-btn tab-active" : "tab-btn"}
-            style={styles.tabBtn}
-            onClick={() => setActiveTab("diagnose")}
-          >
-            🔧 Diagnose
-          </button>
-          <button
-            className={activeTab === "ebike" ? "tab-btn tab-active" : "tab-btn"}
-            style={styles.tabBtn}
-            onClick={() => setActiveTab("ebike")}
-          >
-            ⚡ E-bike Foutcode
-          </button>
-        </div>
-      </div>
-
       <main style={styles.main}>
-        {activeTab === "ebike" ? (
-          <div className="fade-up">
-            <div style={styles.intro}>
-              <p style={styles.introText}>Zoek de betekenis van een foutcode van jouw e-bike motor.</p>
-            </div>
-
-            {/* Brand selector */}
-            <section style={styles.section}>
-              <div style={styles.sectionLabel}>
-                <span style={styles.sectionNum}>01</span>
-                <span>Kies je merk</span>
-              </div>
-              <div style={styles.chips}>
-                {Object.entries(EBIKE_ERROR_CODES).map(([key, val]) => (
-                  <button
-                    key={key}
-                    className={`chip ${ebikeBrand === key ? "active" : ""}`}
-                    style={styles.chip}
-                    onClick={() => { setEbikeBrand(key); setEbikeResult(null); }}
-                  >
-                    {val.name}
-                  </button>
-                ))}
-              </div>
-            </section>
-
-            {/* Code input */}
-            <section style={styles.section}>
-              <div style={styles.sectionLabel}>
-                <span style={styles.sectionNum}>02</span>
-                <span>Voer de foutcode in</span>
-              </div>
-              <div style={{ display: "flex", gap: 10 }}>
-                <input
-                  type="text"
-                  value={ebikeCode}
-                  onChange={e => { setEbikeCode(e.target.value); setEbikeResult(null); }}
-                  placeholder="Bijv: 500 of W001"
-                  style={styles.codeInput}
-                  onKeyDown={e => e.key === "Enter" && handleEbikeLookup()}
-                />
-                <button
-                  className="diagnose-btn"
-                  style={{ ...styles.diagnoseBtn, padding: "12px 20px", fontSize: 14, flexShrink: 0 }}
-                  onClick={handleEbikeLookup}
-                  disabled={!ebikeBrand || !ebikeCode.trim()}
-                >
-                  Zoek →
-                </button>
-              </div>
-            </section>
-
-            {/* Result */}
-            {ebikeResult && (
-              <div className="page-enter" style={styles.resultWrapper}>
-                {ebikeResult === "not_found" ? (
-                  <div>
-                    <div style={styles.resultTitle}>ONBEKENDE CODE</div>
-                    <div style={styles.divider} />
-                    <p style={styles.resultLine}>
-                      Foutcode <strong>{ebikeCode}</strong> is niet gevonden in onze database voor {EBIKE_ERROR_CODES[ebikeBrand]?.name}.
-                    </p>
-                    <p style={{ ...styles.resultLine, marginTop: 8 }}>
-                      Raadpleeg de handleiding van je fiets of neem contact op met de dealer.
-                    </p>
-                  </div>
-                ) : (
-                  <div>
-                    <div style={styles.resultHeader}>
-                      <div style={styles.resultTitle}>{ebikeResult.brand}</div>
-                      <div style={{ ...styles.resultBadge, color: "#2a9fd6", borderColor: "#2a9fd6" }}>
-                        Code {ebikeCode}
-                      </div>
-                    </div>
-                    <div style={styles.divider} />
-
-                    <h3 style={{ ...styles.resultHeading, fontSize: 16, marginTop: 0 }}>{ebikeResult.title}</h3>
-                    <p style={{ ...styles.resultLine, marginBottom: 16 }}>{ebikeResult.ernst} <strong>{ebikeResult.ernst === "🔴" ? "Niet mee rijden" : ebikeResult.ernst === "🟡" ? "Rij voorzichtig" : "Veilig"}</strong></p>
-
-                    <h3 style={styles.resultHeading}>Beschrijving</h3>
-                    <p style={styles.resultLine}>{ebikeResult.beschrijving}</p>
-
-                    <h3 style={styles.resultHeading}>Oplossing</h3>
-                    {ebikeResult.oplossing.map((s, i) => (
-                      <li key={i} style={styles.resultListItem}>{i+1}. {s}</li>
-                    ))}
-
-                    <h3 style={styles.resultHeading}>Naar de fietswinkel?</h3>
-                    <p style={styles.resultLine}>
-                      {ebikeResult.winkel
-                        ? "⚠️ Ja — deze fout vereist diagnose door een erkende dealer."
-                        : "✅ Nee — je kunt dit zelf oplossen met bovenstaande stappen."}
-                    </p>
-
-                    {ebikeResult.affiliate && ebikeResult.affiliate.length > 0 && (
-                      <div style={affStyles.wrapper}>
-                        <div style={affStyles.header}>
-                          <span style={affStyles.headerLabel}>🛒 AANBEVOLEN PRODUCTEN</span>
-                          <span style={affStyles.headerSub}>via Bol.com</span>
-                        </div>
-                        <div style={affStyles.grid}>
-                          {ebikeResult.affiliate.map((p, i) => (
-                            <a key={i} href={p.url} target="_blank" rel="noopener noreferrer sponsored" style={affStyles.card} className="aff-card">
-                              <div style={affStyles.cardTop}>
-                                <span style={affStyles.tag}>{p.tag}</span>
-                                <span style={affStyles.shop}>Bol.com</span>
-                              </div>
-                              <div style={affStyles.productName}>{p.name}</div>
-                              <div style={affStyles.cardBottom}>
-                                <span style={affStyles.price}>{p.price}</span>
-                                <span style={affStyles.cta}>Bekijk →</span>
-                              </div>
-                            </a>
-                          ))}
-                        </div>
-                        <p style={affStyles.disclaimer}>* Gesponsorde links. Commissie zonder meerkosten voor jou.</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        ) : !result ? (
+        {!result ? (
           <>
             {/* Intro */}
             <div style={styles.intro} className="fade-up-2">
