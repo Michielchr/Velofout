@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { getAllDiagnoses } from "../lib/sanity.js";
+import Header from "../components/Header.jsx";
 
 // Affiliate producten per categorie — vervang links door jouw affiliate URLs
 const AFFILIATE_PRODUCTS = {
@@ -173,41 +174,37 @@ const EBIKE_ERROR_CODES = {
   bosch: {
     name: "Bosch",
     codes: {
-      "500": { title: "Interne motorfout", ernst: "🔴", beschrijving: "Interne fout in de aandrijfeenheid (motor).", oplossing: ["Schakel de e-bike uit, wacht 10 seconden en schakel opnieuw in.", "Als de foutcode blijft: breng de fiets naar een Bosch-gespecialiseerde werkplaats."], winkel: true,
-        affiliate: [
-          { name: "Bosch eBike Diagnostics Kabel", price: "€29,95", url: "https://www.bol.com/nl/s/?searchtext=bosch+ebike+diagnostics", tag: "Diagnose" },
-          { name: "Contactspray CRC 2-26", price: "€9,95", url: "https://www.bol.com/nl/s/?searchtext=contactspray+crc+elektronisch", tag: "Onderhoud" },
-        ]},
-      "502": { title: "Verlichtingsfout", ernst: "🟡", beschrijving: "Fout in de fietsverlichting die op de Bosch e-bike is aangesloten.", oplossing: ["Controleer het licht en de bijbehorende bekabeling en aansluitingen.", "Start het systeem opnieuw op door de e-bike uit en weer aan te schakelen.", "Als de foutcode nog steeds verschijnt: naar een Bosch werkplaats."], winkel: false,
-        affiliate: [
-          { name: "Bosch E-bike Verlichting kabel", price: "€12,50", url: "https://www.bol.com/nl/s/?searchtext=bosch+ebike+verlichting+kabel", tag: "Onderdeel" },
-          { name: "Busch & Müller Lumotec IQ-X LED Voorlicht", price: "€49,95", url: "https://www.bol.com/nl/s/?searchtext=busch+muller+lumotec+ebike", tag: "Vervanging" },
-        ]},
-      "503": { title: "Snelheidssensor fout", ernst: "🟡", beschrijving: "De meest voorkomende Bosch foutcode. De snelheidssensor en magneet zijn niet goed uitgelijnd. De afstand moet 8-14mm zijn.", oplossing: ["Controleer de positie van de snelheidssensor en de magneet op de spaak.", "Verplaats de magneet op de spaak zodat deze correct uitlijnt met de sensor (8-14mm afstand).", "De sensor kan losgemaakt worden met een kruiskopschroevendraaier.", "Start het systeem na de aanpassing opnieuw op."], winkel: false,
-        affiliate: [
-          { name: "Bosch Snelheidssensor magnet set", price: "€8,95", url: "https://www.bol.com/nl/s/?searchtext=bosch+ebike+snelheidssensor+magneet", tag: "Onderdeel" },
-          { name: "Kruiskopschroevendraaier set Wera", price: "€19,95", url: "https://www.bol.com/nl/s/?searchtext=wera+kruiskop+schroevendraaier+set", tag: "Gereedschap" },
-        ]},
-      "504": { title: "Elektronische fout / tuning", ernst: "🔴", beschrijving: "Elektronische fout, onjuiste magneetpositie of tuning/manipulatie van de motor gedetecteerd. Ondersteuning is verminderd.", oplossing: ["Controleer de positie van de snelheidssensor en magneet (afstand 8-14mm).", "Controleer of de sensor of magneet gemanipuleerd is.", "Als de fout aanhoudt: naar een Bosch-gespecialiseerde werkplaats."], winkel: true,
-        affiliate: [
-          { name: "Bosch Snelheidssensor magnet set", price: "€8,95", url: "https://www.bol.com/nl/s/?searchtext=bosch+ebike+snelheidssensor+magneet", tag: "Onderdeel" },
-          { name: "Contactspray CRC 2-26", price: "€9,95", url: "https://www.bol.com/nl/s/?searchtext=contactspray+crc+elektronisch", tag: "Onderhoud" },
-        ]},
-      "414": { title: "Display verbindingsfout", ernst: "🟡", beschrijving: "Het display maakt geen contact meer met het systeem. Komt vaak voor in vochtige maanden door corrosie op contactpunten.", oplossing: ["Behandel de contactpunten met contactspray.", "Controleer alle kabelverbindingen en poorten.", "Maak de koperen contactpunten van het display schoon.", "Als de foutcode blijft: naar een Bosch werkplaats."], winkel: false,
-        affiliate: [
-          { name: "Contactspray WD-40 Specialist Elektrisch", price: "€11,95", url: "https://www.bol.com/nl/s/?searchtext=wd40+contactspray+elektrisch", tag: "Aanbevolen" },
-          { name: "Bosch Nyon display cover", price: "€14,95", url: "https://www.bol.com/nl/s/?searchtext=bosch+nyon+display+cover", tag: "Bescherming" },
-        ]},
-      "430": { title: "Interne display-accu leeg", ernst: "🟡", beschrijving: "De interne accu van de boordcomputer (display) is leeg. Gebeurt als de hoofdaccu altijd buiten de fiets wordt opgeladen.", oplossing: ["Laad het display op door de e-bike op te laden met de hoofdaccu in de fiets.", "Het display kan ook opgeladen worden via de mini USB-aansluiting.", "Schakel de e-bike in via de accu of laad het display op via USB."], winkel: false,
-        affiliate: [
-          { name: "Micro USB kabel 1m (voor display)", price: "€6,95", url: "https://www.bol.com/nl/s/?searchtext=micro+usb+kabel+1+meter", tag: "Oplossing" },
-          { name: "Bosch Purion display", price: "€69,95", url: "https://www.bol.com/nl/s/?searchtext=bosch+purion+display+ebike", tag: "Vervanging" },
-        ]},
-      "523001": { title: "Snelheidssensor fout (Smart System)", ernst: "🟡", beschrijving: "Opvolger van foutcode 503 in het nieuwere Bosch Smart Systeem. Duidt op een sensorprobleem.", oplossing: ["Controleer de uitlijning van de snelheidssensor en de magneet (afstand 8-14mm).", "Verplaats de magneet op de spaak indien nodig.", "Start het systeem opnieuw op."], winkel: false,
-        affiliate: [
-          { name: "Bosch Snelheidssensor magnet set", price: "€8,95", url: "https://www.bol.com/nl/s/?searchtext=bosch+ebike+snelheidssensor+magneet", tag: "Onderdeel" },
-          { name: "Kruiskopschroevendraaier set Wera", price: "€19,95", url: "https://www.bol.com/nl/s/?searchtext=wera+kruiskop+schroevendraaier+set", tag: "Gereedschap" },
-        ]},
+      "410":    { title:"Knop bedieningseenheid geblokkeerd", ernst:"🟡", beschrijving:"Knoppen geblokkeerd door vuil.", oplossing:["Reinig de knoppen.","Herstart systeem."], winkel:false, affiliate:[] },
+      "414":    { title:"Display verbindingsfout", ernst:"🟡", beschrijving:"Display maakt geen contact. Vaak door corrosie.", oplossing:["Behandel contactpunten met contactspray.","Controleer kabelverbindingen.","Maak koperen contactpunten schoon."], winkel:false, affiliate:[{name:"Contactspray WD-40",price:"€11,95",url:"https://www.bol.com/nl/s/?searchtext=wd40+contactspray+elektrisch",tag:"Aanbevolen"}] },
+      "418":    { title:"Knop bedieningseenheid geblokkeerd", ernst:"🟡", beschrijving:"Knoppen geblokkeerd.", oplossing:["Controleer en reinig de knoppen."], winkel:false, affiliate:[] },
+      "422":    { title:"Verbindingsprobleem aandrijfeenheid", ernst:"🔴", beschrijving:"Verbindingsprobleem met de motor.", oplossing:["Controleer kabelverbindingen bij de motor.","Herstart systeem.","Als fout blijft: naar dealer."], winkel:true, affiliate:[] },
+      "423":    { title:"Verbindingsprobleem accu", ernst:"🟡", beschrijving:"Verbindingsprobleem met de accu.", oplossing:["Verwijder accu en plaats opnieuw.","Controleer contactpunten.","Herstart systeem."], winkel:false, affiliate:[] },
+      "424":    { title:"Communicatiefout componenten", ernst:"🟡", beschrijving:"Onderlinge communicatie verstoord.", oplossing:["Controleer alle kabelverbindingen.","Herstart systeem."], winkel:false, affiliate:[] },
+      "426":    { title:"Interne tijdsoverschrijding", ernst:"🟡", beschrijving:"Tijdsoverschrijdingsfout.", oplossing:["Herstart systeem (10 seconden uit).","Als fout blijft: naar dealer."], winkel:false, affiliate:[] },
+      "430":    { title:"Interne display-accu leeg", ernst:"🟡", beschrijving:"Interne accu van display is leeg.", oplossing:["Laad display op met hoofdaccu in fiets.","Of laad display via mini USB."], winkel:false, affiliate:[{name:"Micro USB kabel 1m",price:"€6,95",url:"https://www.bol.com/nl/s/?searchtext=micro+usb+kabel+1+meter",tag:"Oplossing"}] },
+      "440":    { title:"Interne fout aandrijfeenheid", ernst:"🔴", beschrijving:"Interne motorfout.", oplossing:["Herstart systeem.","Als fout blijft: naar dealer."], winkel:true, affiliate:[] },
+      "450":    { title:"Interne softwarefout", ernst:"🔴", beschrijving:"Interne softwarefout.", oplossing:["Herstart systeem.","Als fout blijft: dealer voor update."], winkel:true, affiliate:[] },
+      "490":    { title:"Interne fout bedieningscomputer", ernst:"🔴", beschrijving:"Interne fout in display.", oplossing:["Laten controleren door dealer."], winkel:true, affiliate:[] },
+      "500":    { title:"Interne fout aandrijfeenheid", ernst:"🔴", beschrijving:"Interne motorfout. Ook mogelijk door vocht op contactpunten.", oplossing:["Droog contactpunten af.","Behandel met contactspray.","Herstart systeem.","Als fout blijft: naar dealer."], winkel:true, affiliate:[{name:"Bosch eBike Diagnostics Kabel",price:"€29,95",url:"https://www.bol.com/nl/s/?searchtext=bosch+ebike+diagnostics",tag:"Diagnose"},{name:"Contactspray CRC 2-26",price:"€9,95",url:"https://www.bol.com/nl/s/?searchtext=contactspray+crc+elektronisch",tag:"Onderhoud"}] },
+      "502":    { title:"Verlichtingsfout", ernst:"🟡", beschrijving:"Fout in de fietsverlichting.", oplossing:["Controleer licht en bekabeling.","Herstart systeem.","Als fout blijft: naar dealer."], winkel:false, affiliate:[{name:"Bosch E-bike Verlichting kabel",price:"€12,50",url:"https://www.bol.com/nl/s/?searchtext=bosch+ebike+verlichting+kabel",tag:"Onderdeel"}] },
+      "503":    { title:"Snelheidssensor fout", ernst:"🟡", beschrijving:"Meest voorkomende Bosch foutcode. Sensor en magneet niet goed uitgelijnd (8-14mm).", oplossing:["Controleer positie magneet op spaak.","Verplaats magneet (8-14mm afstand).","Start systeem opnieuw op."], winkel:false, affiliate:[{name:"Bosch Snelheidssensor magneet set",price:"€8,95",url:"https://www.bol.com/nl/s/?searchtext=bosch+ebike+snelheidssensor+magneet",tag:"Onderdeel"},{name:"Kruiskopschroevendraaier Wera",price:"€19,95",url:"https://www.bol.com/nl/s/?searchtext=wera+kruiskop+schroevendraaier+set",tag:"Gereedschap"}] },
+      "504":    { title:"Elektronische fout / tuning", ernst:"🔴", beschrijving:"Elektronische fout of manipulatie gedetecteerd.", oplossing:["Controleer magneetpositie (8-14mm).","Als fout blijft: naar dealer."], winkel:true, affiliate:[{name:"Bosch Snelheidssensor magneet set",price:"€8,95",url:"https://www.bol.com/nl/s/?searchtext=bosch+ebike+snelheidssensor+magneet",tag:"Onderdeel"}] },
+      "510":    { title:"Interne sensorfout", ernst:"🔴", beschrijving:"Interne sensorfout.", oplossing:["Herstart systeem.","Als fout blijft: naar dealer."], winkel:true, affiliate:[] },
+      "511":    { title:"Interne fout aandrijfeenheid", ernst:"🔴", beschrijving:"Interne fout.", oplossing:["Herstart systeem.","Als fout blijft: naar dealer."], winkel:true, affiliate:[] },
+      "523001": { title:"Snelheidssensor fout (Smart System)", ernst:"🟡", beschrijving:"Opvolger van 503 in Bosch Smart Systeem.", oplossing:["Zelfde als 503: controleer magneet uitlijning (8-14mm).","Start systeem opnieuw op."], winkel:false, affiliate:[{name:"Bosch Snelheidssensor magneet set",price:"€8,95",url:"https://www.bol.com/nl/s/?searchtext=bosch+ebike+snelheidssensor+magneet",tag:"Onderdeel"}] },
+      "530":    { title:"Accufout", ernst:"🔴", beschrijving:"Fout in de accu.", oplossing:["Schakel fiets uit.","Verwijder accu en plaats opnieuw.","Herstart systeem.","Als fout blijft: naar dealer."], winkel:true, affiliate:[] },
+      "531":    { title:"Configuratiefout", ernst:"🔴", beschrijving:"Configuratiefout.", oplossing:["Herstart systeem.","Als fout blijft: naar dealer."], winkel:true, affiliate:[] },
+      "540":    { title:"Temperatuurfout", ernst:"🟡", beschrijving:"Motor buiten temperatuurbereik.", oplossing:["Schakel uit.","Laat afkoelen of opwarmen.","Herstart."], winkel:false, affiliate:[] },
+      "550":    { title:"Niet toegestane verbruiker", ernst:"🟡", beschrijving:"Niet-toegestaan apparaat aangesloten.", oplossing:["Verwijder externe verbruiker.","Herstart systeem."], winkel:false, affiliate:[] },
+      "602":    { title:"Interne accufout (laden)", ernst:"🔴", beschrijving:"Accufout tijdens laden.", oplossing:["Koppel laadapparaat los.","Herstart.","Sluit opnieuw aan.","Als fout blijft: naar dealer."], winkel:true, affiliate:[] },
+      "603":    { title:"Interne accufout", ernst:"🔴", beschrijving:"Interne accufout.", oplossing:["Herstart systeem.","Als fout blijft: naar dealer."], winkel:true, affiliate:[] },
+      "605":    { title:"Accutemperatuur fout", ernst:"🟡", beschrijving:"Accutemperatuur te hoog of laag.", oplossing:["Laat accu afkoelen/opwarmen naar 0-40°C.","Herstart."], winkel:false, affiliate:[] },
+      "606":    { title:"Externe accufout", ernst:"🟡", beschrijving:"Externe accufout, mogelijk bekabeling.", oplossing:["Controleer bekabeling accu.","Herstart.","Als fout blijft: naar dealer."], winkel:false, affiliate:[] },
+      "610":    { title:"Accuspanningsfout", ernst:"🔴", beschrijving:"Accuspanning klopt niet.", oplossing:["Herstart systeem.","Als fout blijft: naar dealer."], winkel:true, affiliate:[] },
+      "620":    { title:"Fout laadapparaat", ernst:"🔴", beschrijving:"Laadapparaat werkt niet.", oplossing:["Vervang het laadapparaat."], winkel:true, affiliate:[] },
+      "640":    { title:"Interne accufout", ernst:"🔴", beschrijving:"Interne accufout.", oplossing:["Herstart systeem.","Als fout blijft: naar dealer."], winkel:true, affiliate:[] },
+      "655":    { title:"Meervoudige accufout", ernst:"🔴", beschrijving:"Meerdere accufouten.", oplossing:["Verwijder accu en plaats opnieuw.","Herstart.","Als fout blijft: naar dealer."], winkel:true, affiliate:[] },
+      "656":    { title:"Software-versiefout", ernst:"🟡", beschrijving:"Softwareversie klopt niet.", oplossing:["Naar dealer voor software-update."], winkel:true, affiliate:[] },
     }
   },
   shimano: {
@@ -284,14 +281,16 @@ const EBIKE_ERROR_CODES = {
 };
 
 function getEbikeError(brand, code) {
-  // Probeer eerst de codes uit het beheerpaneel (localStorage)
+  const codeClean = code.trim();
+
+  // Stap 1: probeer localStorage (beheerpaneel)
   try {
     const adminCodes = localStorage.getItem("velofout_ebike_codes");
     if (adminCodes) {
       const codes = JSON.parse(adminCodes);
       const match = codes.find(c =>
         c.merk.toLowerCase() === brand.toLowerCase() &&
-        c.code.trim().toLowerCase() === code.trim().toLowerCase()
+        c.code.trim().toLowerCase() === codeClean.toLowerCase()
       );
       if (match) {
         return {
@@ -307,14 +306,20 @@ function getEbikeError(brand, code) {
     }
   } catch (_) {}
 
-  // Fallback naar hardcoded database
-  const brandData = EBIKE_ERROR_CODES[brand];
-  if (!brandData) return null;
-  const normalizedCode = code.trim().toUpperCase().replace(/^0+/, "") || code.trim();
-  const error = brandData.codes[code.trim()] ||
-    brandData.codes[normalizedCode] ||
-    brandData.codes[code.trim().toUpperCase()];
-  return error ? { ...error, brand: brandData.name } : null;
+  // Stap 2: zoek in hardcoded database via merknaam (ook gedeeltelijke match)
+  const brandEntry = Object.values(EBIKE_ERROR_CODES).find(b =>
+    b.name.toLowerCase() === brand.toLowerCase() ||
+    brand.toLowerCase().includes(b.name.toLowerCase()) ||
+    b.name.toLowerCase().includes(brand.toLowerCase())
+  );
+  if (!brandEntry) return null;
+
+  const error = brandEntry.codes[codeClean] ||
+    brandEntry.codes[codeClean.toUpperCase()] ||
+    brandEntry.codes[codeClean.replace(/^0+/, "")] ||
+    Object.entries(brandEntry.codes).find(([k]) => k.toLowerCase() === codeClean.toLowerCase())?.[1];
+
+  return error ? { ...error, brand: brandEntry.name } : null;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -827,30 +832,7 @@ Beschrijving: ${description || "Geen extra beschrijving"}
         .scanline { position: absolute; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #2a7de1, #3ab07a, transparent); animation: scanline 1.8s ease-in-out infinite; pointer-events: none; }
       `}</style>
 
-      {/* Header */}
-      <header style={styles.header} className="fade-up">
-        <div style={styles.headerAccent} />
-        <div style={styles.headerInner}>
-          <div style={styles.logoArea}>
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-              <circle cx="9" cy="27" r="7" stroke="#2a7de1" strokeWidth="2.5" fill="none"/>
-              <circle cx="27" cy="27" r="7" stroke="#2a7de1" strokeWidth="2.5" fill="none"/>
-              <circle cx="9" cy="27" r="2" fill="#3ab07a"/>
-              <circle cx="27" cy="27" r="2" fill="#3ab07a"/>
-              <path d="M9 27 L18 10 L27 27" stroke="#fff" strokeWidth="2" fill="none" strokeLinejoin="round"/>
-              <path d="M14 20 L27 20" stroke="#fff" strokeWidth="2"/>
-            </svg>
-            <div>
-              <div style={styles.logoTitle}>VELOFOUT</div>
-              <div style={styles.logoSub}>Fiets Diagnostics</div>
-            </div>
-          </div>
-          <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <button onClick={() => navigate && navigate("/blog")} style={{background:"transparent",border:"none",color:"#5a7a9a",fontFamily:"'IBM Plex Mono',monospace",fontSize:11,letterSpacing:1,cursor:"pointer",textTransform:"uppercase"}}>Blog</button>
-            <div style={styles.badge}>AI-MONTEUR</div>
-          </div>
-        </div>
-      </header>
+      <Header navigate={navigate} activePath="/" />
 
       {/* Tab navigation */}
       <div style={styles.tabBar}>

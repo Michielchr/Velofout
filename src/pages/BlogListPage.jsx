@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Header from "../components/Header.jsx";
 import { getAllPosts } from "../lib/sanity.js";
 
 const CATEGORIES = ["Alle", "Ketting", "Remmen", "Versnellingen", "E-bike", "Onderhoud", "Tips"];
@@ -32,22 +33,7 @@ export default function BlogListPage({ navigate }) {
         @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
         .fade-up { animation:fadeUp 0.5s ease forwards; }
       `}</style>
-      <header style={s.header}>
-        <div style={s.accent} />
-        <div style={s.headerInner}>
-          <div style={{display:"flex",alignItems:"center",gap:12,cursor:"pointer"}} onClick={() => navigate("/")}>
-            <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
-              <circle cx="9" cy="27" r="7" stroke="#2a7de1" strokeWidth="2.5" fill="none"/>
-              <circle cx="27" cy="27" r="7" stroke="#2a7de1" strokeWidth="2.5" fill="none"/>
-              <circle cx="9" cy="27" r="2" fill="#3ab07a"/><circle cx="27" cy="27" r="2" fill="#3ab07a"/>
-              <path d="M9 27 L18 10 L27 27" stroke="#fff" strokeWidth="2" fill="none" strokeLinejoin="round"/>
-              <path d="M14 20 L27 20" stroke="#fff" strokeWidth="2"/>
-            </svg>
-            <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:24,letterSpacing:4,color:"#f0ede6"}}>VELOFOUT</div>
-          </div>
-          <button onClick={() => navigate("/")} style={s.backBtn}>← Diagnose</button>
-        </div>
-      </header>
+      <Header navigate={navigate} activePath="/blog" />
       <main style={s.main}>
         <div className="fade-up" style={{marginBottom:36,borderLeft:"4px solid #2a7de1",paddingLeft:20}}>
           <h1 style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:52,letterSpacing:6,lineHeight:1,marginBottom:10}}>FIETS<span style={{color:"#2a7de1"}}>BLOG</span></h1>

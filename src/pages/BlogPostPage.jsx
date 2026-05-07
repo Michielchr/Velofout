@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Header from "../components/Header.jsx";
 import { getPostBySlug, portableTextToHtml } from "../lib/sanity.js";
 
 const DEMO_CONTENT = {
@@ -32,13 +33,7 @@ export default function BlogPostPage({ slug, navigate }) {
         .prose p { font-size:15px; color:#8aaac0; line-height:1.8; margin-bottom:16px; }
         .prose strong { color:#d4e5f0; }
       `}</style>
-      <header style={{borderBottom:"1px solid #1a2433",position:"relative",overflow:"hidden"}}>
-        <div style={{position:"absolute",top:0,left:0,width:"100%",height:"3px",background:"linear-gradient(90deg,#2a7de1,#3ab07a,transparent)"}} />
-        <div style={{maxWidth:740,margin:"0 auto",padding:"18px 24px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:24,letterSpacing:4,color:"#f0ede6",cursor:"pointer"}} onClick={() => navigate("/")}>VELOFOUT</div>
-          <button onClick={() => navigate("/blog")} style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:11,letterSpacing:1,background:"transparent",border:"none",color:"#5a7a9a",cursor:"pointer"}}>← Blog</button>
-        </div>
-      </header>
+      <Header navigate={navigate} activePath="/blog" />
       <main style={{flex:1,maxWidth:740,width:"100%",margin:"0 auto",padding:"40px 24px"}}>
         <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16}}>
           {post.category && <span style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:9,letterSpacing:1,color:"#3ab07a",textTransform:"uppercase",background:"rgba(58,176,122,0.1)",padding:"3px 10px",borderRadius:2}}>{post.category}</span>}
