@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import DiagnosePage from "./pages/DiagnosePage.jsx";
 import EbikePage from "./pages/EbikePage.jsx";
 import BlogListPage from "./pages/BlogListPage.jsx";
@@ -23,9 +24,24 @@ function useRoute() {
 export default function App() {
   const { path, navigate } = useRoute();
   const blogMatch = path.match(/^\/blog\/(.+)$/);
-  if (path === "/admin") return <AdminPage navigate={navigate} />;
-  if (path === "/ebike") return <EbikePage navigate={navigate} />;
-  if (blogMatch) return <BlogPostPage slug={blogMatch[1]} navigate={navigate} />;
-  if (path === "/blog") return <BlogListPage navigate={navigate} />;
-  return <DiagnosePage navigate={navigate} />;
+  
+  let content;
+  if (path === "/admin") {
+    content = <AdminPage navigate={navigate} />;
+  } else if (path === "/ebike") {
+    content = <EbikePage navigate={navigate} />;
+  } else if (blogMatch) {
+    content = <BlogPostPage slug={blogMatch[1]} navigate={navigate} />;
+  } else if (path === "/blog") {
+    content = <BlogListPage navigate={navigate} />;
+  } else {
+    content = <DiagnosePage navigate={navigate} />;
+  }
+  
+  return (
+    <>
+      {content}
+      <Analytics />
+    </>
+  );
 }
