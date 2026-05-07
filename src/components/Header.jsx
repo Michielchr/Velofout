@@ -10,20 +10,14 @@ const HERO_IMAGE_URL = "https://images.unsplash.com/photo-1485965120184-e220f721
 
 const NAV_ITEMS = [
   { label: "🔧 Diagnose", path: "/" },
-  { label: "⚡ E-bike Codes", path: "/?tab=ebike" },
+  { label: "⚡ E-bike Codes", path: "/ebike" },
   { label: "📖 Blog", path: "/blog" },
 ];
 
 export default function Header({ navigate, activePath }) {
 
   const handleNav = (path) => {
-    if (path.startsWith("/?tab=")) {
-      window.history.pushState({}, "", "/");
-      window.dispatchEvent(new CustomEvent("velofout-tab", { detail: path.split("=")[1] }));
-      window.scrollTo(0, 0);
-    } else {
-      navigate(path);
-    }
+    navigate(path);
   };
 
   return (
@@ -53,7 +47,6 @@ export default function Header({ navigate, activePath }) {
         <nav style={s.nav}>
           {NAV_ITEMS.map(item => {
             const isActive = activePath === item.path ||
-              (item.path === "/" && activePath === "/") ||
               (item.path === "/blog" && activePath?.startsWith("/blog"));
             return (
               <button
